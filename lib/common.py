@@ -226,7 +226,7 @@ def calc_D_loss(D_W, D_W_, batch_size):
 def calc_G_loss(D_W_, x_v_, k_v_, x_v, k_v, batch_size):
     w_weight_vector = torch.tensor(np.array([0.0333,0.0333,0.5000,0.3000,0.0333,0.0333,0.0333,0.0333]), dtype=torch.float32).to(torch.device("cuda"))
     G_weight_vector = torch.tensor(np.array([0.5, 0.5]), dtype=torch.float32).to(torch.device("cuda"))
-    g_loss = (-1/batch_size) * torch.sum(torch.log(1-D_W_))
+    g_loss = (-1/batch_size) * torch.sum(torch.log(D_W_))
     w_ = torch.cat((x_v_, k_v_), axis=2)
     w = torch.cat((x_v, k_v), axis=2).to(torch.device("cuda"))
     g_MSE = (1/batch_size) * torch.sum(torch.sum((((w_ - w)**2) * (w_weight_vector)), axis=2), axis=0)

@@ -11,18 +11,18 @@ from lib import environ, data, models, common, validation, GAN_model
 
 from torch.utils.tensorboard import SummaryWriter
 
-G_lr = 0.000000001
-D_lr = 0.000001
+G_lr = 0.0000001
+D_lr = 0.000000001
 BATCH_SIZE = 32
 VAL_STEPS = 30000
 CHECKPOINT_EVERY_STEP = 50000
 BARS_COUNT = 40
 PRINT_STEP = 200
 
-load_fileName = "checkpoint_GAN-1700000.data"
+load_fileName = "checkpoint_GAN-300000.data"
 saves_path = "../checkpoint/14"
 
-LOAD_NET = False
+LOAD_NET = True
 TRAIN_ON_GPU = True
 if TRAIN_ON_GPU:
     device = torch.device("cuda")
@@ -46,9 +46,6 @@ G_net = GAN_model.G_net(price_input_size=price_shape[1], trend_input_size=trend_
 D_net = GAN_model.D_net(price_input_size=price_shape[1], trend_input_size=trend_shape[1], n_hidden=256, n_layers=1,
                         fc_drop_prob=0.1, train_on_gpu=TRAIN_ON_GPU, batch_first=True).to(device)
 
-# define the net_processor
-net_processor = common.GANPreprocessor(G_net, D_net)
-
 # define the optimizers
 optimizerG = optim.Adam(params=G_net.parameters(), lr=G_lr, betas=(0.9,0.999))
 optimizerD = optim.Adam(params=D_net.parameters(), lr=D_lr, betas=(0.9,0.999))
@@ -67,7 +64,10 @@ if LOAD_NET is True:
     D_net = GAN_model.D_net(price_input_size=price_shape[1], trend_input_size=trend_shape[1], n_hidden=256, n_layers=1,
                             fc_drop_prob=0.1, train_on_gpu=TRAIN_ON_GPU, batch_first=True).to(device)
     G_net.load_state_dict(checkpoint['G_state_dict'])
-    G_net.load_state_dict(checkpoint['D_state_dict'])
+    D_net.load_state_dict(checkpoint['D_state_dict'])
+
+# define the net_processor
+net_processor = common.GANPreprocessor(G_net, D_net)
 
 # update the step_idx
 if LOAD_NET:
@@ -87,7 +87,6 @@ with common.gan_lossTracker(writer, stop_loss=np.inf, mean_size=100) as loss_tra
         input_real = data.D_preprocess(X_v, K_v, x_v, k_v)
 
         # train D by input_real
-        #D_net.zero_grad()
         D_W = D_net(input_real)
 
         # train D for input_fake
@@ -97,7 +96,6 @@ with common.gan_lossTracker(writer, stop_loss=np.inf, mean_size=100) as loss_tra
         D_W_ = D_net(input_fake.detach())
         loss_D, Loss_D_W, Loss_D_W_ = common.calc_D_loss(D_W, D_W_, BATCH_SIZE)
         loss_tracker.D_performance(Loss_D_W, Loss_D_W_, loss_D, step_idx)
-        #G_net.zero_grad()
         loss_D.backward()
         optimizerD.step()
 
