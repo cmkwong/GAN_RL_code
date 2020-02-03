@@ -125,13 +125,14 @@ class G_net(nn.Module):
                            weight.new_zeros(self.n_layers, batch_size, self.n_hidden))
 
 class D_net(nn.Module):
-    def __init__(self, price_input_size=4, trend_input_size=4, n_hidden=256, n_layers=1,
-                 fc_drop_prob=0.1, train_on_gpu=True, batch_first=True):
+    def __init__(self, price_input_size=4, trend_input_size=4, n_hidden=64, n_layers=1,
+                 fc_drop_prob=0.1, bars_count=40, train_on_gpu=True, batch_first=True):
         super(D_net, self).__init__()
         self.input_size = price_input_size + trend_input_size
         self.n_hidden = n_hidden
         self.n_layers = n_layers
         self.fc_drop_prob = fc_drop_prob
+        self.bars_count = bars_count
         self.train_on_gpu = train_on_gpu
         self.batch_first = batch_first
         if self.train_on_gpu:
@@ -144,9 +145,13 @@ class D_net(nn.Module):
                               batch_first=self.batch_first).to(self.device)
 
         self.fc_D = nn.Sequential(
-            nn.Linear(self.n_hidden, 512),
+            nn.Linear((self.n_hidden * (self.bars_count + 1)), 2046),
             nn.LeakyReLU(negative_slope=0.0001),
-            nn.Linear(512, 512),
+            nn.Linear(2046, 2046),
+            nn.LeakyReLU(negative_slope=0.0001),
+            nn.Linear(2046, 1024),
+            nn.LeakyReLU(negative_slope=0.0001),
+            nn.Linear(1024, 512),
             nn.LeakyReLU(negative_slope=0.0001),
             nn.Linear(512, 256),
             nn.LeakyReLU(negative_slope=0.0001),
@@ -154,9 +159,7 @@ class D_net(nn.Module):
             nn.LeakyReLU(negative_slope=0.0001),
             nn.Linear(128, 64),
             nn.LeakyReLU(negative_slope=0.0001),
-            nn.Linear(64, 32),
-            nn.LeakyReLU(negative_slope=0.0001),
-            nn.Linear(32, 1),
+            nn.Linear(64, 1),
             nn.Sigmoid()
         ).to(self.device)
 
@@ -174,9 +177,9 @@ class D_net(nn.Module):
         self.lstm_D.flatten_parameters()
         D_output, self.hidden_D = self.lstm_D(W_W_tesnor, self.hidden_D)
 
-        # last output from lstms
-        D_output_ = D_output[:, -1, :]
-        D_output_ = D_output_.view(self.batch_size, -1)
+        # all output from lstm and cat them
+        #D_output_ = D_output[:, -1, :]
+        D_output_ = D_output.contiguous().view(self.batch_size, -1)
 
         # into fc
         D_W_W = self.fc_D(D_output_)

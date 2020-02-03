@@ -1,5 +1,6 @@
 import sys
 import time
+import copy
 import numpy as np
 import re
 
@@ -167,13 +168,16 @@ class gan_lossTracker:
         self.writer.add_scalar("val_loss_G", val_G_loss_array, frame)
 
     def print_data(self, frame):
-        D_loss = np.mean(self.Buffer['batch_loss_D'][-self.mean_size:]).item()
-        G_loss = np.mean(self.Buffer['G_loss_array'][-self.mean_size:]).item()
-        speed = (frame - self.ts_frame) / (time.time() - self.ts)
-        self.ts_frame = frame
-        self.ts = time.time()
-        print("%d: Train mode - D_loss: %.5f, G_loss: %.5f, speed: %.3f f/s"
-              % (frame, D_loss, G_loss, speed))
+        if len(self.Buffer['batch_loss_D']) > self.mean_size:
+            D_loss = np.mean(self.Buffer['batch_loss_D'][-self.mean_size:]).item()
+            G_loss = np.mean(self.Buffer['G_loss_array'][-self.mean_size:]).item()
+            speed = (frame - self.ts_frame) / (time.time() - self.ts)
+            self.ts_frame = frame
+            self.ts = time.time()
+            print("%d: Train mode - D_loss: %.5f, G_loss: %.5f, speed: %.3f f/s"
+                  % (frame, D_loss, G_loss, speed))
+        else:
+            print("%d: The number of data is not enough to shown yet." %(frame))
 
 
 def calc_values_of_states(states, net, device="cpu"):
@@ -262,9 +266,10 @@ class netPreprocessor:
         self.net.init_hidden(batch_size)
 
 class GANPreprocessor:
-    def __init__(self, G_net, D_net):
+    def __init__(self, G_net, D_net, tgt_D_net):
         self.G = G_net
         self.D = D_net
+        self.tgt_D = tgt_D_net
 
     def train_mode(self, batch_size):
         self.G.train()
@@ -273,12 +278,17 @@ class GANPreprocessor:
         self.D.train()
         self.D.zero_grad()
         self.D.init_hidden(batch_size)
+        self.tgt_D.train()
+        self.tgt_D.zero_grad()
+        self.tgt_D.init_hidden(batch_size)
 
     def val_mode(self, batch_size):
         self.G.eval()
         self.G.init_hidden(batch_size)
-        self.D.eval()
-        self.D.init_hidden(batch_size)
+        #self.D.eval()
+        #self.D.init_hidden(batch_size)
+        self.tgt_D.eval()
+        self.tgt_D.init_hidden(batch_size)
 
 def weight_visualize(net, writer):
     for name, param in net.named_parameters():
@@ -324,3 +334,11 @@ def inputShape_check(train_set, extra_set, bars_count, required_volume=False):
         base_trend_size = 4
         # return price_shape, trend_shape, status_shape
         return (bars_count, base_trend_size ), (bars_count, extra_trend_size), (1, base_status_size + extra_status_size)
+
+class TargetNet:
+    def __init__(self, model):
+        self.model = model
+        self.target_model = copy.deepcopy(self.model)
+
+    def sync(self, D_net):
+        self.target_model.load_state_dict(D_net.state_dict())
