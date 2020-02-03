@@ -107,15 +107,15 @@ with common.gan_lossTracker(writer, stop_loss=np.inf, mean_size=1000) as loss_tr
 
         # train G
         optimizerG.zero_grad()
-        D_W_ = tgt_D_net.target_model(input_fake)
-        #D_W_ = D_net(input_fake)
+        #D_W_ = tgt_D_net.target_model(input_fake)
+        D_W_ = D_net(input_fake)
         lossG, g_loss, g_MSE = common.calc_G_loss(D_W_, x_v_, k_v_, x_v, k_v, BATCH_SIZE)
         loss_tracker.G_performance(g_loss, g_MSE, lossG, step_idx)
         lossG.backward()
         optimizerG.step()
 
-        if step_idx % TARGET_NET_SYNC == 0:
-            tgt_D_net.sync(D_net)
+        #if step_idx % TARGET_NET_SYNC == 0:
+        #    tgt_D_net.sync(D_net)
 
         if step_idx % PRINT_STEP == 0:
             loss_tracker.print_data(step_idx)
@@ -133,14 +133,14 @@ with common.gan_lossTracker(writer, stop_loss=np.inf, mean_size=1000) as loss_tr
             net_processor.val_mode(batch_size=BATCH_SIZE)
             X_v, K_v, x_v, k_v = val_container.generate_batch(BATCH_SIZE)
             input_real = data.D_preprocess(X_v, K_v, x_v, k_v)
-            D_W = tgt_D_net.target_model(input_real)
-            #D_W = D_net(input_real)
+            #D_W = tgt_D_net.target_model(input_real)
+            D_W = D_net(input_real)
 
             # gen fake input
             x_v_, k_v_ = G_net(X_v, K_v)
             input_fake = data.D_preprocess(X_v, K_v, x_v_, k_v_)
-            D_W_ = tgt_D_net.target_model(input_fake)
-            #D_W_ = D_net(input_fake)
+            #D_W_ = tgt_D_net.target_model(input_fake)
+            D_W_ = D_net(input_fake)
 
             # calculate the validation loss of G and D
             loss_D_val, Loss_D_W_val, Loss_D_W__val = common.calc_D_loss(D_W, D_W_, BATCH_SIZE)
