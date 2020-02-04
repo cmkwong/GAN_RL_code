@@ -42,7 +42,7 @@ price_shape, trend_shape, status_shape = common.inputShape_check(train_set, extr
 shapeList_ = [price_shape, trend_shape, status_shape]
 
 # define the network
-G_net = GAN_model.G_net(price_input_size=price_shape[1], trend_input_size=trend_shape[1], n_hidden=256, n_layers=2,
+G_net = GAN_model.G_net(price_input_size=price_shape[1], trend_input_size=trend_shape[1], n_hidden=32, n_layers=2,
                         rnn_drop_prob=0.1, fc_drop_prob=0.1, train_on_gpu=TRAIN_ON_GPU, batch_first=True).to(device)
 
 D_net = GAN_model.D_net(price_input_size=price_shape[1], trend_input_size=trend_shape[1], n_hidden=64, n_layers=1,
@@ -60,7 +60,7 @@ val_container = data.gan_data_container(val_set, extra_set, shapeList_, train_mo
 if LOAD_NET is True:
     with open(os.path.join(saves_path, load_fileName), "rb") as f:
         checkpoint = torch.load(f)
-    G_net = GAN_model.G_net(price_input_size=price_shape[1], trend_input_size=trend_shape[1], n_hidden=256, n_layers=2,
+    G_net = GAN_model.G_net(price_input_size=price_shape[1], trend_input_size=trend_shape[1], n_hidden=32, n_layers=2,
                             rnn_drop_prob=0.1, fc_drop_prob=0.1, train_on_gpu=TRAIN_ON_GPU, batch_first=True).to(device)
 
     D_net = GAN_model.D_net(price_input_size=price_shape[1], trend_input_size=trend_shape[1], n_hidden=64, n_layers=1,
