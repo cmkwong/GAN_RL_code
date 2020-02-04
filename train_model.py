@@ -1,14 +1,11 @@
 import os
-
+from datetime import datetime
 from gym import wrappers
 import ptan
 import numpy as np
-
 import torch
 import torch.optim as optim
-
 from lib import environ, data, models, common, validation
-
 from torch.utils.tensorboard import SummaryWriter
 
 BATCH_SIZE = 32
@@ -43,6 +40,10 @@ LOAD_NET = False
 TRAIN_ON_GPU = True
 load_fileName = "checkpoint-1700000.data"
 saves_path = "../checkpoint/14"
+
+# get the now time
+now = datetime.now()
+dt_string = now.strftime("%y%m%d_%H%M%S")
 
 if __name__ == "__main__":
 
@@ -97,7 +98,7 @@ if __name__ == "__main__":
     eval_states = None
     best_mean_val = None
 
-    writer = SummaryWriter(comment="RL_stock_trading")
+    writer = SummaryWriter(log_dir="../runs/RL" + dt_string, comment="RL_stock_trading")
     loss_tracker = common.lossTracker(writer, group_losses=100)
     with common.RewardTracker(writer, np.inf, group_rewards=100) as reward_tracker:
         while True:
