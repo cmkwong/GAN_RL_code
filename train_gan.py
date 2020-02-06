@@ -18,7 +18,7 @@ BARS_COUNT = 40
 PRINT_STEP = 200
 
 load_fileName = "checkpoint_GAN-200000.data"
-saves_path = "../checkpoint/15"
+saves_path = "../checkpoint/16"
 
 LOAD_NET = False
 TRAIN_ON_GPU = True
@@ -33,7 +33,7 @@ dt_string = now.strftime("%y%m%d_%H%M%S")
 
 # read raw data
 train_set, val_set, extra_set = data.read_bundle_csv(
-        path="../data/15",
+        path="../data/16",
         sep='\t', filter_data=True, fix_open_price=False, percentage=0.8, extra_indicator=True,
         trend_names=['bollinger_bands', 'MACD', 'RSI'], status_names=[])
 
