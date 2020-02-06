@@ -8,8 +8,8 @@ import torch.optim as optim
 from lib import environ, data, models, common, validation, GAN_model
 from torch.utils.tensorboard import SummaryWriter
 
-G_lr = 0.000001
-D_lr = 0.000001
+G_lr = 0.00001
+D_lr = 0.0000001
 BATCH_SIZE = 32
 VAL_STEPS = 10000
 CHECKPOINT_EVERY_STEP = 20000
