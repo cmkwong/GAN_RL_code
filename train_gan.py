@@ -46,7 +46,7 @@ G_net = GAN_model.G_net(price_input_size=price_shape[1], trend_input_size=trend_
                         rnn_drop_prob=0.1, fc_drop_prob=0.1, train_on_gpu=TRAIN_ON_GPU, batch_first=True).to(device)
 
 D_net = GAN_model.D_net(price_input_size=price_shape[1], trend_input_size=trend_shape[1], n_hidden=64, n_layers=1,
-                        fc_drop_prob=0.1, bars_count=BARS_COUNT, train_on_gpu=TRAIN_ON_GPU, batch_first=True).to(device)
+                        fc_drop_prob=0.3, bars_count=BARS_COUNT, train_on_gpu=TRAIN_ON_GPU, batch_first=True).to(device)
 
 # define the optimizers
 optimizerG = optim.Adam(params=G_net.parameters(), lr=G_lr, betas=(0.9,0.999))
