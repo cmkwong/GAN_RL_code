@@ -69,89 +69,89 @@ class G_net(nn.Module):
 
         self.fc_1 = nn.Sequential(
             nn.Linear(62, 128),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Dropout(p=self.fc_drop_prob),
             nn.Linear(128, 64),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(64, 32),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(32, 1),
         ).to(self.device)
 
         self.fc_2 = nn.Sequential(
             nn.Linear(62, 128),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Dropout(p=self.fc_drop_prob),
             nn.Linear(128, 64),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(64, 32),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(32, 1),
         ).to(self.device)
 
         self.fc_3 = nn.Sequential(
             nn.Linear(62, 128),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Dropout(p=self.fc_drop_prob),
             nn.Linear(128, 64),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(64, 32),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(32, 1),
         ).to(self.device)
 
         self.fc_4 = nn.Sequential(
             nn.Linear(62, 128),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Dropout(p=self.fc_drop_prob),
             nn.Linear(128, 64),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(64, 32),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(32, 1),
         ).to(self.device)
 
         self.fc_5 = nn.Sequential(
             nn.Linear(62, 128),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Dropout(p=self.fc_drop_prob),
             nn.Linear(128, 64),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(64, 32),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(32, 1),
         ).to(self.device)
 
         self.fc_6 = nn.Sequential(
             nn.Linear(62, 128),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Dropout(p=self.fc_drop_prob),
             nn.Linear(128, 64),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(64, 32),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(32, 1),
         ).to(self.device)
 
         self.fc_7 = nn.Sequential(
             nn.Linear(62, 128),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Dropout(p=self.fc_drop_prob),
             nn.Linear(128, 64),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(64, 32),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(32, 1),
         ).to(self.device)
 
         self.fc_8 = nn.Sequential(
             nn.Linear(62, 128),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Dropout(p=self.fc_drop_prob),
             nn.Linear(128, 64),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(64, 32),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(32, 1),
         ).to(self.device)
 
