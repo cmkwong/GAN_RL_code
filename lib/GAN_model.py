@@ -252,12 +252,13 @@ class G_net(nn.Module):
                                weight.new_zeros(self.n_layers, batch_size, self.combine_hidden_size))
 
 class D_net(nn.Module):
-    def __init__(self, price_input_size=4, trend_input_size=4, n_hidden=64, n_layers=1,
+    def __init__(self, price_input_size=4, trend_input_size=4, n_hidden=64, n_layers=2, rnn_drop_prob=0.3,
                  fc_drop_prob=0.1, bars_count=40, train_on_gpu=True, batch_first=True):
         super(D_net, self).__init__()
         self.input_size = price_input_size + trend_input_size
         self.n_hidden = n_hidden
         self.n_layers = n_layers
+        self.rnn_drop_prob = rnn_drop_prob
         self.fc_drop_prob = fc_drop_prob
         self.bars_count = bars_count
         self.train_on_gpu = train_on_gpu
@@ -268,7 +269,7 @@ class D_net(nn.Module):
             self.device = torch.device("cpu")
         self.batch_size = None
 
-        self.lstm_D = nn.LSTM(self.input_size, self.n_hidden, num_layers=self.n_layers,
+        self.lstm_D = nn.LSTM(self.input_size, self.n_hidden, num_layers=self.n_layers, dropout=self.rnn_drop_prob,
                               batch_first=self.batch_first).to(self.device)
 
         self.fc_D = nn.Sequential(
