@@ -8,8 +8,8 @@ import torch.optim as optim
 from lib import environ, data, models, common, validation, GAN_model
 from torch.utils.tensorboard import SummaryWriter
 
-G_lr = 0.000001
-D_lr = 0.000001
+G_lr = 0.00001
+D_lr = 0.0000001
 BATCH_SIZE = 32
 VAL_STEPS = 10000
 CHECKPOINT_EVERY_STEP = 20000
@@ -18,7 +18,7 @@ BARS_COUNT = 40
 PRINT_STEP = 200
 
 load_fileName = "checkpoint_GAN-200000.data"
-saves_path = "../checkpoint/15"
+saves_path = "../checkpoint/16"
 
 LOAD_NET = False
 TRAIN_ON_GPU = True
@@ -33,7 +33,7 @@ dt_string = now.strftime("%y%m%d_%H%M%S")
 
 # read raw data
 train_set, val_set, extra_set = data.read_bundle_csv(
-        path="../data/15",
+        path="../data/16",
         sep='\t', filter_data=True, fix_open_price=False, percentage=0.8, extra_indicator=True,
         trend_names=['bollinger_bands', 'MACD', 'RSI'], status_names=[])
 
@@ -45,8 +45,8 @@ shapeList_ = [price_shape, trend_shape, status_shape]
 G_net = GAN_model.G_net(price_input_size=price_shape[1], trend_input_size=trend_shape[1], n_hidden=32, n_layers=2,
                         rnn_drop_prob=0.1, fc_drop_prob=0.1, train_on_gpu=TRAIN_ON_GPU, batch_first=True).to(device)
 
-D_net = GAN_model.D_net(price_input_size=price_shape[1], trend_input_size=trend_shape[1], n_hidden=64, n_layers=1,
-                        fc_drop_prob=0.1, bars_count=BARS_COUNT, train_on_gpu=TRAIN_ON_GPU, batch_first=True).to(device)
+D_net = GAN_model.D_net(price_input_size=price_shape[1], trend_input_size=trend_shape[1], n_hidden=64, n_layers=2,
+                        rnn_drop_prob=0.3, fc_drop_prob=0.3, bars_count=BARS_COUNT, train_on_gpu=TRAIN_ON_GPU, batch_first=True).to(device)
 
 # define the optimizers
 optimizerG = optim.Adam(params=G_net.parameters(), lr=G_lr, betas=(0.9,0.999))

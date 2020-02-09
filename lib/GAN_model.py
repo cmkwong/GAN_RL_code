@@ -18,7 +18,9 @@ class G_net(nn.Module):
         self.fc_drop_prob = fc_drop_prob
         self.train_on_gpu = train_on_gpu
         self.batch_first = batch_first
-        self.combine_hidden_size = 256
+        self.kernel_sizes = [2,4,8,16,32]
+
+        self.combine_hidden_size = 64
         if self.train_on_gpu:
             self.device = torch.device("cuda")
         else:
@@ -34,115 +36,122 @@ class G_net(nn.Module):
         self.combine_lstm = nn.LSTM((self.n_hidden*2), self.combine_hidden_size, self.n_layers, dropout=self.rnn_drop_prob,
                                     batch_first=self.batch_first).to(self.device)
 
+        # conv 1
+        self.convs_1 = nn.ModuleList([
+            nn.Sequential(nn.Conv1d(in_channels=64,
+                                    out_channels=32,
+                                    kernel_size=h),
+                          nn.BatchNorm1d(num_features=32))
+            for h in self.kernel_sizes
+        ])
+        # nn.ReLU(),
+        self.maxPool_1 = nn.MaxPool1d(kernel_size=3, stride=3, padding=1)
+
+        # conv 2
+        self.convs_2 = nn.ModuleList([
+            nn.Sequential(nn.Conv1d(in_channels=32,
+                                    out_channels=16,
+                                    kernel_size=h),
+                          nn.BatchNorm1d(num_features=16))
+            for h in self.kernel_sizes
+        ])
+        self.maxPool_2 = nn.MaxPool1d(kernel_size=3, stride=3, padding=1)
+
+        # conv 3
+        self.convs_3 = nn.ModuleList([
+            nn.Sequential(nn.Conv1d(in_channels=16,
+                                    out_channels=8,
+                                    kernel_size=h),
+                          nn.BatchNorm1d(num_features=8))
+            for h in self.kernel_sizes
+        ])
+        self.maxPool_3 = nn.MaxPool1d(kernel_size=4, stride=4, padding=1)
+
         self.fc_1 = nn.Sequential(
-            nn.Linear(256, 256),
-            nn.LeakyReLU(negative_slope=0.0001),
-            nn.Dropout(p=self.fc_drop_prob),
-            nn.Linear(256, 128),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.Linear(62, 128),
+            nn.ReLU(),
             nn.Dropout(p=self.fc_drop_prob),
             nn.Linear(128, 64),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(64, 32),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(32, 1),
         ).to(self.device)
 
         self.fc_2 = nn.Sequential(
-            nn.Linear(256, 256),
-            nn.LeakyReLU(negative_slope=0.0001),
-            nn.Dropout(p=self.fc_drop_prob),
-            nn.Linear(256, 128),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.Linear(62, 128),
+            nn.ReLU(),
             nn.Dropout(p=self.fc_drop_prob),
             nn.Linear(128, 64),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(64, 32),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(32, 1),
         ).to(self.device)
 
         self.fc_3 = nn.Sequential(
-            nn.Linear(256, 256),
-            nn.LeakyReLU(negative_slope=0.0001),
-            nn.Dropout(p=self.fc_drop_prob),
-            nn.Linear(256, 128),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.Linear(62, 128),
+            nn.ReLU(),
             nn.Dropout(p=self.fc_drop_prob),
             nn.Linear(128, 64),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(64, 32),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(32, 1),
         ).to(self.device)
 
         self.fc_4 = nn.Sequential(
-            nn.Linear(256, 256),
-            nn.LeakyReLU(negative_slope=0.0001),
-            nn.Dropout(p=self.fc_drop_prob),
-            nn.Linear(256, 128),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.Linear(62, 128),
+            nn.ReLU(),
             nn.Dropout(p=self.fc_drop_prob),
             nn.Linear(128, 64),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(64, 32),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(32, 1),
         ).to(self.device)
 
         self.fc_5 = nn.Sequential(
-            nn.Linear(256, 256),
-            nn.LeakyReLU(negative_slope=0.0001),
-            nn.Dropout(p=self.fc_drop_prob),
-            nn.Linear(256, 128),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.Linear(62, 128),
+            nn.ReLU(),
             nn.Dropout(p=self.fc_drop_prob),
             nn.Linear(128, 64),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(64, 32),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(32, 1),
         ).to(self.device)
 
         self.fc_6 = nn.Sequential(
-            nn.Linear(256, 256),
-            nn.LeakyReLU(negative_slope=0.0001),
-            nn.Dropout(p=self.fc_drop_prob),
-            nn.Linear(256, 128),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.Linear(62, 128),
+            nn.ReLU(),
             nn.Dropout(p=self.fc_drop_prob),
             nn.Linear(128, 64),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(64, 32),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(32, 1),
         ).to(self.device)
 
         self.fc_7 = nn.Sequential(
-            nn.Linear(256, 256),
-            nn.LeakyReLU(negative_slope=0.0001),
-            nn.Dropout(p=self.fc_drop_prob),
-            nn.Linear(256, 128),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.Linear(62, 128),
+            nn.ReLU(),
             nn.Dropout(p=self.fc_drop_prob),
             nn.Linear(128, 64),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(64, 32),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(32, 1),
         ).to(self.device)
 
         self.fc_8 = nn.Sequential(
-            nn.Linear(256, 256),
-            nn.LeakyReLU(negative_slope=0.0001),
-            nn.Dropout(p=self.fc_drop_prob),
-            nn.Linear(256, 128),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.Linear(62, 128),
+            nn.ReLU(),
             nn.Dropout(p=self.fc_drop_prob),
             nn.Linear(128, 64),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(64, 32),
-            nn.LeakyReLU(negative_slope=0.0001),
+            nn.ReLU(),
             nn.Linear(32, 1),
         ).to(self.device)
 
@@ -174,18 +183,45 @@ class G_net(nn.Module):
         self.hidden_c = tuple([each.data for each in self.hidden_c])
         self.combine_lstm.flatten_parameters()
         combine_output, self.hidden_c = self.combine_lstm(combine_input, self.hidden_c)
-        # last output needed
-        combine_output_ = combine_output[:, -1, :]
+
+        # premute the dim
+        combine_output_ = combine_output.permute(0,2,1)
+        conv_outputs = [conv(combine_output_) for conv in self.convs_1]
+        out_cat = None
+        for c, conv_output in enumerate(conv_outputs):
+            if c == 0:
+                out_cat = conv_output
+            else:
+                out_cat = torch.cat((out_cat, conv_output), dim=2)
+        out_cat_pool_1 = self.maxPool_1(out_cat)
+
+        conv_outputs = [conv(out_cat_pool_1) for conv in self.convs_2]
+        out_cat = None
+        for c, conv_output in enumerate(conv_outputs):
+            if c == 0:
+                out_cat = conv_output
+            else:
+                out_cat = torch.cat((out_cat, conv_output), dim=2)
+        out_cat_pool_2 = self.maxPool_2(out_cat)
+
+        conv_outputs = [conv(out_cat_pool_2) for conv in self.convs_3]
+        out_cat = None
+        for c, conv_output in enumerate(conv_outputs):
+            if c == 0:
+                out_cat = conv_output
+            else:
+                out_cat = torch.cat((out_cat, conv_output), dim=2)
+        out_cat_pool_3 = self.maxPool_3(out_cat)
 
         # into fc
-        x_v_1 = self.fc_1(combine_output_).unsqueeze(1)
-        x_v_2 = self.fc_2(combine_output_).unsqueeze(1)
-        x_v_3 = self.fc_3(combine_output_).unsqueeze(1)
-        x_v_4 = self.fc_4(combine_output_).unsqueeze(1)
-        k_v_1 = self.fc_5(combine_output_).unsqueeze(1)
-        k_v_2 = self.fc_6(combine_output_).unsqueeze(1)
-        k_v_3 = self.fc_7(combine_output_).unsqueeze(1)
-        k_v_4 = self.fc_8(combine_output_).unsqueeze(1)
+        x_v_1 = self.fc_1(out_cat_pool_3[:, 0,:]).unsqueeze(1)
+        x_v_2 = self.fc_2(out_cat_pool_3[:, 1,:]).unsqueeze(1)
+        x_v_3 = self.fc_3(out_cat_pool_3[:, 2,:]).unsqueeze(1)
+        x_v_4 = self.fc_4(out_cat_pool_3[:, 3,:]).unsqueeze(1)
+        k_v_1 = self.fc_5(out_cat_pool_3[:, 4,:]).unsqueeze(1)
+        k_v_2 = self.fc_6(out_cat_pool_3[:, 5,:]).unsqueeze(1)
+        k_v_3 = self.fc_7(out_cat_pool_3[:, 6,:]).unsqueeze(1)
+        k_v_4 = self.fc_8(out_cat_pool_3[:, 7,:]).unsqueeze(1)
 
         x_v_ = torch.cat((x_v_1, x_v_2, x_v_3, x_v_4), dim=2)
         k_v_ = torch.cat((k_v_1, k_v_2, k_v_3, k_v_4), dim=2)
@@ -216,12 +252,13 @@ class G_net(nn.Module):
                                weight.new_zeros(self.n_layers, batch_size, self.combine_hidden_size))
 
 class D_net(nn.Module):
-    def __init__(self, price_input_size=4, trend_input_size=4, n_hidden=64, n_layers=1,
+    def __init__(self, price_input_size=4, trend_input_size=4, n_hidden=64, n_layers=2, rnn_drop_prob=0.3,
                  fc_drop_prob=0.1, bars_count=40, train_on_gpu=True, batch_first=True):
         super(D_net, self).__init__()
         self.input_size = price_input_size + trend_input_size
         self.n_hidden = n_hidden
         self.n_layers = n_layers
+        self.rnn_drop_prob = rnn_drop_prob
         self.fc_drop_prob = fc_drop_prob
         self.bars_count = bars_count
         self.train_on_gpu = train_on_gpu
@@ -232,20 +269,25 @@ class D_net(nn.Module):
             self.device = torch.device("cpu")
         self.batch_size = None
 
-        self.lstm_D = nn.LSTM(self.input_size, self.n_hidden, num_layers=self.n_layers,
+        self.lstm_D = nn.LSTM(self.input_size, self.n_hidden, num_layers=self.n_layers, dropout=self.rnn_drop_prob,
                               batch_first=self.batch_first).to(self.device)
 
         self.fc_D = nn.Sequential(
             nn.Linear((self.n_hidden * (self.bars_count + 1)), 2046),
             nn.LeakyReLU(negative_slope=0.0001),
+            nn.Dropout(p=self.fc_drop_prob),
             nn.Linear(2046, 2046),
             nn.LeakyReLU(negative_slope=0.0001),
+            nn.Dropout(p=self.fc_drop_prob),
             nn.Linear(2046, 1024),
             nn.LeakyReLU(negative_slope=0.0001),
+            nn.Dropout(p=self.fc_drop_prob),
             nn.Linear(1024, 512),
             nn.LeakyReLU(negative_slope=0.0001),
+            nn.Dropout(p=self.fc_drop_prob),
             nn.Linear(512, 256),
             nn.LeakyReLU(negative_slope=0.0001),
+            nn.Dropout(p=self.fc_drop_prob/2),
             nn.Linear(256, 128),
             nn.LeakyReLU(negative_slope=0.0001),
             nn.Linear(128, 64),
